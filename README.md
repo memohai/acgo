@@ -1,6 +1,8 @@
 # acgo
 
-
+<p align="center">
+  <img src="assets/logo.png" width="200" alt="acgo logo" />
+</p>
 
 Go SDK for [Apple Container](https://github.com/apple/container). Talks to [socktainer](https://github.com/socktainer/socktainer) over a Unix socket, gives you a containerd v2-flavored API.
 
@@ -319,6 +321,10 @@ type Store interface {
 ```
 
 These follow the same interface pattern as `containerd/v2/core/containers.Store` and `containerd/v2/core/images.Store`.
+
+## Related
+
+- [Memoh](https://github.com/memohai/Memoh) - Multi-Member, Structured Long-Memor， Containerized AI Agent System ✨
 
 ## License
 
