@@ -1,0 +1,92 @@
+[tools]
+go = "1.25"
+
+[tasks.build]
+description = "Build all Go packages"
+run = "go build ./..."
+
+[tasks.test]
+description = "Run all tests"
+run = "go test ./..."
+
+[tasks.vet]
+description = "Run go vet"
+run = "go vet ./..."
+
+[tasks.lint]
+description = "Build + vet"
+depends = ["build", "vet"]
+
+[tasks.clean]
+description = "Clean build cache"
+run = "go clean ./..."
+
+[tasks.socktainer]
+description = "Ensure socktainer is installed via brew"
+run = """
+if command -v socktainer &>/dev/null; then
+  echo "socktainer already installed: $(which socktainer)"
+else
+  echo "Installing socktainer via homebrew..."
+  brew tap socktainer/tap
+  brew install socktainer
+fi
+"""
+
+[tasks.start]
+description = "Start socktainer daemon"
+depends = ["socktainer"]
+run = """
+if curl -s --unix-socket "$HOME/.socktainer/container.sock" http://localhost/_ping &>/dev/null; then
+  echo "socktainer is already running"
+else
+  echo "Starting socktainer..."
+  nohup socktainer > /tmp/socktainer.log 2>&1 &
+  echo $! > "$HOME/.acgo/socktainer.pid"
+  for i in $(seq 1 30); do
+    if curl -s --unix-socket "$HOME/.socktainer/container.sock" http://localhost/_ping &>/dev/null; then
+      echo "socktainer is ready (PID $(cat "$HOME/.acgo/socktainer.pid"))"
+      exit 0
+    fi
+    sleep 1
+  done
+  echo "timed out waiting for socktainer"
+  exit 1
+fi
+"""
+
+[tasks.stop]
+description = "Stop socktainer daemon"
+run = """
+PID_FILE="$HOME/.acgo/socktainer.pid"
+if [ -f "$PID_FILE" ]; then
+  PID=$(cat "$PID_FILE")
+  if kill -0 "$PID" 2>/dev/null; then
+    echo "Stopping socktainer (PID $PID)..."
+    kill "$PID"
+    rm -f "$PID_FILE"
+    echo "socktainer stopped"
+  else
+    echo "PID $PID is not running, cleaning up"
+    rm -f "$PID_FILE"
+  fi
+else
+  echo "No PID file found"
+fi
+"""
+
+[tasks.status]
+description = "Check socktainer status"
+run = """
+if curl -s --unix-socket "$HOME/.socktainer/container.sock" http://localhost/_ping &>/dev/null; then
+  PID_FILE="$HOME/.acgo/socktainer.pid"
+  if [ -f "$PID_FILE" ]; then
+    echo "socktainer is running (PID $(cat "$PID_FILE"))"
+  else
+    echo "socktainer is running"
+  fi
+else
+  echo "socktainer is not running"
+  exit 1
+fi
+"""
