@@ -59,10 +59,12 @@ func NewTransport(socketPath string, opts ...TransportOpt) *Transport {
 }
 
 func (t *Transport) url(path string, query url.Values) string {
+	raw := fmt.Sprintf("/%s%s", t.apiVersion, path)
 	u := url.URL{
 		Scheme:   t.scheme,
 		Host:     "localhost",
-		Path:     fmt.Sprintf("/%s%s", t.apiVersion, path),
+		RawPath:  raw,
+		Path:     raw,
 		RawQuery: query.Encode(),
 	}
 	return u.String()
