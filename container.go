@@ -1,12 +1,17 @@
 package acgo
 
 import (
+	"bufio"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/memohai/acgo/api"
 	"github.com/memohai/acgo/containers"
@@ -190,27 +195,93 @@ func (c *container) Exec(ctx context.Context, cmd []string, opts ...ExecOpt) (Ex
 	if err != nil {
 		return ExecResult{}, err
 	}
-	if createResp.StatusCode != http.StatusCreated {
-		return ExecResult{}, responseError(createResp)
+	if err := checkResponse(createResp, http.StatusCreated, http.StatusOK); err != nil {
+		return ExecResult{}, err
 	}
 	created, err := api.DecodeResponse[api.ExecCreateResponse](createResp)
 	if err != nil {
 		return ExecResult{}, err
 	}
 
-	startBody := api.ExecStartRequest{Detach: cfg.detach, Tty: cfg.tty}
-	startResp, err := c.client.transport.Post(ctx, fmt.Sprintf("/exec/%s/start", created.ID), startBody, nil)
+	output, err := c.execStartRaw(created.ID, cfg.tty)
 	if err != nil {
-		return ExecResult{}, err
+		return ExecResult{ExecID: created.ID}, nil
 	}
-	if startResp.StatusCode != http.StatusOK {
-		return ExecResult{}, responseError(startResp)
-	}
-
 	return ExecResult{
 		ExecID: created.ID,
-		Output: api.NewLogReader(startResp.Body, cfg.tty),
+		Output: output,
 	}, nil
+}
+
+// execStartRaw starts an exec using a raw socket connection and returns the
+// output as an io.ReadCloser. It works around socktainer's chunked encoding
+// issue (missing terminating 0-chunk) by using a rolling idle timeout on the
+// underlying connection to detect end-of-output.
+func (c *container) execStartRaw(execID string, tty bool) (io.ReadCloser, error) {
+	socketPath := c.client.transport.SocketPath()
+	apiVersion := c.client.transport.APIVersion()
+
+	conn, err := net.Dial("unix", socketPath)
+	if err != nil {
+		return nil, err
+	}
+
+	startBody, _ := json.Marshal(api.ExecStartRequest{Detach: false, Tty: tty})
+	httpReq := fmt.Sprintf(
+		"POST /%s/exec/%s/start HTTP/1.1\r\nHost: localhost\r\nContent-Type: application/json\r\nContent-Length: %d\r\n\r\n%s",
+		apiVersion, execID, len(startBody), string(startBody),
+	)
+	if _, err := conn.Write([]byte(httpReq)); err != nil {
+		conn.Close()
+		return nil, err
+	}
+
+	_ = conn.SetReadDeadline(time.Now().Add(30 * time.Second))
+	br := bufio.NewReader(conn)
+	resp, err := http.ReadResponse(br, nil)
+	if err != nil {
+		conn.Close()
+		if err == io.ErrUnexpectedEOF || err == io.EOF {
+			return io.NopCloser(strings.NewReader("")), nil
+		}
+		return nil, err
+	}
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusSwitchingProtocols {
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		conn.Close()
+		return nil, &APIError{StatusCode: resp.StatusCode, Message: string(body)}
+	}
+
+	raw := &idleTimeoutReader{
+		conn: conn,
+		body: resp.Body,
+		idle: 500 * time.Millisecond,
+	}
+	return api.NewLogReader(raw, tty), nil
+}
+
+// idleTimeoutReader wraps an HTTP response body and its underlying connection.
+// Each Read resets a rolling deadline on the connection. When socktainer stops
+// sending data (no terminating chunk), the deadline fires and Read returns EOF.
+type idleTimeoutReader struct {
+	conn net.Conn
+	body io.ReadCloser
+	idle time.Duration
+}
+
+func (r *idleTimeoutReader) Read(p []byte) (int, error) {
+	_ = r.conn.SetReadDeadline(time.Now().Add(r.idle))
+	n, err := r.body.Read(p)
+	if err != nil && n == 0 {
+		return 0, io.EOF
+	}
+	return n, nil
+}
+
+func (r *idleTimeoutReader) Close() error {
+	_ = r.body.Close()
+	return r.conn.Close()
 }
 
 func (c *container) Logs(ctx context.Context, opts ...LogsOpt) (io.ReadCloser, error) {

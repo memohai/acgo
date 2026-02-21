@@ -95,6 +95,12 @@ func (t *Transport) Post(ctx context.Context, path string, body interface{}, que
 	return t.client.Do(req)
 }
 
+// SocketPath returns the Unix socket path this transport connects to.
+func (t *Transport) SocketPath() string { return t.socketPath }
+
+// APIVersion returns the API version prefix (e.g. "v1.51").
+func (t *Transport) APIVersion() string { return t.apiVersion }
+
 // PostRaw issues an HTTP POST with a raw reader body and content type.
 func (t *Transport) PostRaw(ctx context.Context, path string, body io.Reader, contentType string, query url.Values) (*http.Response, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, t.url(path, query), body)
