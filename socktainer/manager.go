@@ -93,6 +93,12 @@ func (m *Manager) Start(ctx context.Context) error {
 		return fmt.Errorf("create socket directory: %w", err)
 	}
 
+	// Clean up stale socket left by a previous crash so the new process
+	// can bind successfully.
+	if _, err := os.Stat(m.socketPath); err == nil {
+		_ = os.Remove(m.socketPath)
+	}
+
 	m.cmd = exec.CommandContext(ctx, bin)
 	m.cmd.Stdout = os.Stdout
 	m.cmd.Stderr = os.Stderr
