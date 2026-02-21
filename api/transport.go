@@ -59,13 +59,11 @@ func NewTransport(socketPath string, opts ...TransportOpt) *Transport {
 }
 
 func (t *Transport) url(path string, query url.Values) string {
-	u := url.URL{
-		Scheme:   t.scheme,
-		Host:     "localhost",
-		Path:     fmt.Sprintf("/%s%s", t.apiVersion, path),
-		RawQuery: query.Encode(),
+	u := fmt.Sprintf("%s://localhost/%s%s", t.scheme, t.apiVersion, path)
+	if q := query.Encode(); q != "" {
+		u += "?" + q
 	}
-	return u.String()
+	return u
 }
 
 // Get issues an HTTP GET request.

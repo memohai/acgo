@@ -328,7 +328,7 @@ func (c *Client) Pull(ctx context.Context, ref string, opts ...PullOpt) (Image, 
 
 // GetImage returns a handle to an image by reference.
 func (c *Client) GetImage(ctx context.Context, ref string) (Image, error) {
-	resp, err := c.transport.Get(ctx, fmt.Sprintf("/images/%s/json", url.PathEscape(ref)), nil)
+	resp, err := c.transport.Get(ctx, fmt.Sprintf("/images/%s/json", ref), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -382,7 +382,7 @@ func (c *Client) ListImages(ctx context.Context, opts ...ImageListOpt) ([]Image,
 
 // DeleteImage removes an image by reference.
 func (c *Client) DeleteImage(ctx context.Context, ref string, opts ...ImageDeleteOpt) error {
-	resp, err := c.transport.Delete(ctx, fmt.Sprintf("/images/%s", url.PathEscape(ref)), nil)
+	resp, err := c.transport.Delete(ctx, fmt.Sprintf("/images/%s", ref), nil)
 	if err != nil {
 		return err
 	}
@@ -392,7 +392,7 @@ func (c *Client) DeleteImage(ctx context.Context, ref string, opts ...ImageDelet
 // TagImage applies a new tag to an existing image.
 func (c *Client) TagImage(ctx context.Context, source, target string) error {
 	query := url.Values{"repo": {target}}
-	resp, err := c.transport.Post(ctx, fmt.Sprintf("/images/%s/tag", url.PathEscape(source)), nil, query)
+	resp, err := c.transport.Post(ctx, fmt.Sprintf("/images/%s/tag", source), nil, query)
 	if err != nil {
 		return err
 	}
@@ -430,7 +430,7 @@ func (c *Client) Build(ctx context.Context, buildCtx io.Reader, opts ...BuildOpt
 
 // Push pushes an image to a registry.
 func (c *Client) Push(ctx context.Context, ref string, opts ...PushOpt) error {
-	resp, err := c.transport.Post(ctx, fmt.Sprintf("/images/%s/push", url.PathEscape(ref)), nil, nil)
+	resp, err := c.transport.Post(ctx, fmt.Sprintf("/images/%s/push", ref), nil, nil)
 	if err != nil {
 		return err
 	}

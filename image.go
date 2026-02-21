@@ -50,7 +50,7 @@ func (i *image) Size() int64                 { return i.size }
 func (i *image) Created() time.Time          { return i.created }
 
 func (i *image) Info(ctx context.Context) (images.Image, error) {
-	resp, err := i.client.transport.Get(ctx, fmt.Sprintf("/images/%s/json", url.PathEscape(i.Name())), nil)
+	resp, err := i.client.transport.Get(ctx, fmt.Sprintf("/images/%s/json", i.Name()), nil)
 	if err != nil {
 		return images.Image{}, err
 	}
@@ -80,7 +80,7 @@ func (i *image) Delete(ctx context.Context, opts ...ImageDeleteOpt) error {
 
 func (i *image) Tag(ctx context.Context, repo, tag string) error {
 	query := url.Values{"repo": {repo}, "tag": {tag}}
-	resp, err := i.client.transport.Post(ctx, fmt.Sprintf("/images/%s/tag", url.PathEscape(i.Name())), nil, query)
+	resp, err := i.client.transport.Post(ctx, fmt.Sprintf("/images/%s/tag", i.Name()), nil, query)
 	if err != nil {
 		return err
 	}

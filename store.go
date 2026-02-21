@@ -103,7 +103,7 @@ type imageStore struct {
 }
 
 func (s *imageStore) Get(ctx context.Context, ref string) (images.Image, error) {
-	resp, err := s.client.transport.Get(ctx, fmt.Sprintf("/images/%s/json", url.PathEscape(ref)), nil)
+	resp, err := s.client.transport.Get(ctx, fmt.Sprintf("/images/%s/json", ref), nil)
 	if err != nil {
 		return images.Image{}, err
 	}
@@ -154,7 +154,7 @@ func (s *imageStore) List(ctx context.Context, filters ...string) ([]images.Imag
 }
 
 func (s *imageStore) Delete(ctx context.Context, ref string) error {
-	resp, err := s.client.transport.Delete(ctx, fmt.Sprintf("/images/%s", url.PathEscape(ref)), nil)
+	resp, err := s.client.transport.Delete(ctx, fmt.Sprintf("/images/%s", ref), nil)
 	if err != nil {
 		return err
 	}
