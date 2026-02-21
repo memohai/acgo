@@ -223,7 +223,7 @@ func (c *Client) NewContainer(ctx context.Context, id string, opts ...CreateOpt)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkResponse(resp, http.StatusCreated); err != nil {
+	if err := checkResponse(resp, http.StatusCreated, http.StatusOK); err != nil {
 		return nil, err
 	}
 
@@ -481,9 +481,11 @@ func (c *Client) RegistryLogin(ctx context.Context, username, password, server s
 	return checkResponse(resp, http.StatusOK)
 }
 
-func checkResponse(resp *http.Response, expected int) error {
-	if resp.StatusCode == expected {
-		return nil
+func checkResponse(resp *http.Response, expected ...int) error {
+	for _, code := range expected {
+		if resp.StatusCode == code {
+			return nil
+		}
 	}
 	defer resp.Body.Close()
 	return responseError(resp)
