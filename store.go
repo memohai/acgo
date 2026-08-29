@@ -7,10 +7,10 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/memohai/acgo/api"
-	"github.com/memohai/acgo/containers"
-	"github.com/memohai/acgo/images"
-	"github.com/memohai/acgo/mount"
+	"github.com/felinics/acgo/api"
+	"github.com/felinics/acgo/containers"
+	"github.com/felinics/acgo/images"
+	"github.com/felinics/acgo/mount"
 )
 
 // containerStore implements containers.Store via the Docker API.

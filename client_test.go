@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/memohai/acgo/api"
+	"github.com/felinics/acgo/api"
 )
 
 // newTestClient creates a Client backed by a local httptest server via a temp Unix socket.

@@ -1,3 +1,3 @@
-module github.com/memohai/acgo
+module github.com/felinics/acgo
 
 go 1.25.2

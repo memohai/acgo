@@ -3,8 +3,8 @@ package acgo
 import (
 	"fmt"
 
-	"github.com/memohai/acgo/api"
-	"github.com/memohai/acgo/mount"
+	"github.com/felinics/acgo/api"
+	"github.com/felinics/acgo/mount"
 )
 
 // --- Create Options ---

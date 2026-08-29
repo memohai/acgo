@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/memohai/acgo/api"
-	"github.com/memohai/acgo/network"
+	"github.com/felinics/acgo/api"
+	"github.com/felinics/acgo/network"
 )
 
 // CreateNetwork creates a new network.

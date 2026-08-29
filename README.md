@@ -7,7 +7,7 @@
 Go SDK for [Apple Container](https://github.com/apple/container). Talks to [socktainer](https://github.com/socktainer/socktainer) over a Unix socket, gives you a containerd v2-flavored API.
 
 ```
-go get github.com/memohai/acgo
+go get github.com/felinics/acgo
 ```
 
 ## How it works
@@ -49,7 +49,7 @@ import (
     "fmt"
     "log"
 
-    "github.com/memohai/acgo"
+    "github.com/felinics/acgo"
 )
 
 func main() {
@@ -100,8 +100,8 @@ import (
     "context"
     "log"
 
-    "github.com/memohai/acgo"
-    "github.com/memohai/acgo/socktainer"
+    "github.com/felinics/acgo"
+    "github.com/felinics/acgo/socktainer"
 )
 
 func main() {
@@ -324,7 +324,7 @@ These follow the same interface pattern as `containerd/v2/core/containers.Store`
 
 ## Related
 
-- [Memoh](https://github.com/memohai/Memoh) - Multi-Member, Structured Long-Memor， Containerized AI Agent System ✨
+- [Memoh](https://github.com/felinics/Memoh) - Multi-Member, Structured Long-Memor， Containerized AI Agent System ✨
 
 ## License
 

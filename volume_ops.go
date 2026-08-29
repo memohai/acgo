@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/memohai/acgo/api"
-	"github.com/memohai/acgo/volume"
+	"github.com/felinics/acgo/api"
+	"github.com/felinics/acgo/volume"
 )
 
 // CreateVolume creates a new volume.

@@ -7,8 +7,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/memohai/acgo/api"
-	"github.com/memohai/acgo/images"
+	"github.com/felinics/acgo/api"
+	"github.com/felinics/acgo/images"
 )
 
 // Image represents a handle to a container image.

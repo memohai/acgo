@@ -13,10 +13,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/memohai/acgo/api"
-	"github.com/memohai/acgo/containers"
-	"github.com/memohai/acgo/mount"
-	"github.com/memohai/acgo/system"
+	"github.com/felinics/acgo/api"
+	"github.com/felinics/acgo/containers"
+	"github.com/felinics/acgo/mount"
+	"github.com/felinics/acgo/system"
 )
 
 // Container represents a handle to a container managed by Apple Container.

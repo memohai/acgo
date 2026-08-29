@@ -10,10 +10,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/memohai/acgo/api"
-	"github.com/memohai/acgo/containers"
-	"github.com/memohai/acgo/images"
-	"github.com/memohai/acgo/system"
+	"github.com/felinics/acgo/api"
+	"github.com/felinics/acgo/containers"
+	"github.com/felinics/acgo/images"
+	"github.com/felinics/acgo/system"
 )
 
 // Client communicates with Apple Container via the socktainer Docker-compatible API.
